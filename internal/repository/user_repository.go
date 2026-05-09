@@ -1,18 +1,26 @@
 package repository
 
 import (
+	"database/sql"
 	"errors"
 
-	"exammple.com/event-booking-api/db"
 	"exammple.com/event-booking-api/internal/domain"
 	"exammple.com/event-booking-api/pkg/utils"
 )
 
-func SignupUser(user *domain.User) error {
+type UserRepository struct {
+	db *sql.DB
+}
+
+func NewUserRepository(db *sql.DB) *UserRepository {
+	return &UserRepository{db: db}
+}
+
+func (r *UserRepository) Signup(user *domain.User) error {
 	query := `INSERT INTO users (
 	 name, email, password) VALUES (?, ?, ?)`
 
-	stmt, err := db.DB.Prepare(query)
+	stmt, err := r.db.Prepare(query)
 
 	if err != nil {
 		return err
@@ -39,10 +47,10 @@ func SignupUser(user *domain.User) error {
 	return err
 }
 
-func GetAllUsers() ([]domain.User, error) {
+func (r *UserRepository) GetAll() ([]domain.User, error) {
 	query := `SELECT * FROM users`
 
-	rows, err := db.DB.Query(query)
+	rows, err := r.db.Query(query)
 
 	if err != nil {
 		return nil, err
@@ -66,10 +74,10 @@ func GetAllUsers() ([]domain.User, error) {
 	return users, nil
 }
 
-func Login(user *domain.User) error {
+func (r *UserRepository) Login(user *domain.User) error {
 	query := "SELECT id, password FROM users WHERE email = ?"
 
-	row := db.DB.QueryRow(query, user.Email)
+	row := r.db.QueryRow(query, user.Email)
 
 	var retrievedPassword string
 

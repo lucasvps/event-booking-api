@@ -5,12 +5,19 @@ import (
 	"net/http"
 
 	"exammple.com/event-booking-api/internal/domain"
-	repository "exammple.com/event-booking-api/internal/repository"
 	"github.com/gin-gonic/gin"
 )
 
-func GetEvents(context *gin.Context) {
-	events, err := repository.GetAllEvents()
+type EventHandler struct {
+	repo domain.EventRepository
+}
+
+func NewEventHandler(repo domain.EventRepository) *EventHandler {
+	return &EventHandler{repo: repo}
+}
+
+func (h *EventHandler) GetEvents(context *gin.Context) {
+	events, err := h.repo.GetAll()
 
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not fetch events."})
@@ -20,10 +27,10 @@ func GetEvents(context *gin.Context) {
 	context.JSON(http.StatusOK, events)
 }
 
-func GetEventById(context *gin.Context) {
+func (h *EventHandler) GetEventById(context *gin.Context) {
 	id := context.Param("id")
 
-	event, err := repository.GetEventById(id)
+	event, err := h.repo.GetById(id)
 
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
@@ -33,7 +40,7 @@ func GetEventById(context *gin.Context) {
 	context.JSON(http.StatusOK, gin.H{"data": event})
 }
 
-func CreateEvent(context *gin.Context) {
+func (h *EventHandler) CreateEvent(context *gin.Context) {
 	var event domain.Event
 
 	err := context.ShouldBindJSON(&event)
@@ -48,7 +55,7 @@ func CreateEvent(context *gin.Context) {
 
 	event.UserID = userId
 
-	err = repository.Save(&event)
+	err = h.repo.Save(&event)
 
 	if err != nil {
 		fmt.Println(err)
@@ -59,11 +66,11 @@ func CreateEvent(context *gin.Context) {
 	context.JSON(http.StatusCreated, gin.H{"message": "Event created successfully", "event": event})
 }
 
-func DeleteEvent(context *gin.Context) {
+func (h *EventHandler) DeleteEvent(context *gin.Context) {
 	id := context.Param("id")
 	userId := context.GetInt64("userId")
 
-	eventById, err := repository.GetEventById(id)
+	eventById, err := h.repo.GetById(id)
 
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not fetch event."})
@@ -75,7 +82,7 @@ func DeleteEvent(context *gin.Context) {
 		return
 	}
 
-	err = repository.DeleteEvent(id)
+	err = h.repo.Delete(id)
 
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "An error ocurred. The event could not be deleted."})
@@ -85,12 +92,12 @@ func DeleteEvent(context *gin.Context) {
 	context.JSON(http.StatusNoContent, gin.H{"message": "The event was deleted successfully."})
 }
 
-func UpdateEvent(context *gin.Context) {
+func (h *EventHandler) UpdateEvent(context *gin.Context) {
 
 	userId := context.GetInt64("userId")
 	id := context.Param("id")
 
-	eventById, err := repository.GetEventById(id)
+	eventById, err := h.repo.GetById(id)
 
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not fetch event."})
@@ -114,7 +121,7 @@ func UpdateEvent(context *gin.Context) {
 	event.ID = eventById.ID
 	event.UserID = eventById.UserID
 
-	err = repository.UpdateEvent(id, event)
+	err = h.repo.Update(id, event)
 
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "An error ocurred. The event could not be updated."})

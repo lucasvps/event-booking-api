@@ -3,14 +3,21 @@ package handler
 import (
 	"net/http"
 
-	models "exammple.com/event-booking-api/internal/domain"
-	"exammple.com/event-booking-api/internal/repository"
+	domain "exammple.com/event-booking-api/internal/domain"
 	"exammple.com/event-booking-api/pkg/utils"
 	"github.com/gin-gonic/gin"
 )
 
-func SignupUser(context *gin.Context) {
-	var user models.User
+type UserHandler struct {
+	repo domain.UserRepository
+}
+
+func NewUserHandler(repo domain.UserRepository) *UserHandler {
+	return &UserHandler{repo: repo}
+}
+
+func (h *UserHandler) SignupUser(context *gin.Context) {
+	var user domain.User
 
 	err := context.ShouldBindJSON(&user)
 
@@ -19,7 +26,7 @@ func SignupUser(context *gin.Context) {
 		return
 	}
 
-	err = repository.SignupUser(&user)
+	err = h.repo.Signup(&user)
 
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not create user."})
@@ -29,8 +36,8 @@ func SignupUser(context *gin.Context) {
 	context.JSON(http.StatusCreated, gin.H{"message": "Signup successfully."})
 }
 
-func GetUsers(context *gin.Context) {
-	users, err := repository.GetAllUsers()
+func (h *UserHandler) GetUsers(context *gin.Context) {
+	users, err := h.repo.GetAll()
 
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not fetch users"})
@@ -39,8 +46,8 @@ func GetUsers(context *gin.Context) {
 	context.JSON(http.StatusOK, gin.H{"data": users})
 }
 
-func Login(context *gin.Context) {
-	var user models.User
+func (h *UserHandler) Login(context *gin.Context) {
+	var user domain.User
 
 	err := context.ShouldBindJSON(&user)
 
@@ -49,7 +56,7 @@ func Login(context *gin.Context) {
 		return
 	}
 
-	err = repository.Login(&user)
+	err = h.repo.Login(&user)
 
 	if err != nil {
 		context.JSON(http.StatusUnauthorized, gin.H{"message": err.Error()})

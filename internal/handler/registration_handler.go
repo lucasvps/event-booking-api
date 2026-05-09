@@ -3,22 +3,30 @@ package handler
 import (
 	"net/http"
 
-	"exammple.com/event-booking-api/internal/repository"
+	"exammple.com/event-booking-api/internal/domain"
 	"github.com/gin-gonic/gin"
 )
 
-func RegisterUserForEvent(context *gin.Context) {
+type RegistrationHandler struct {
+	repo domain.EventRepository
+}
+
+func NewRegistrationHandler(repo domain.EventRepository) *RegistrationHandler {
+	return &RegistrationHandler{repo: repo}
+}
+
+func (h *RegistrationHandler) RegisterUserForEvent(context *gin.Context) {
 	eventId := context.Param("id")
 	userId := context.GetInt64("userId")
 
-	event, err := repository.GetEventById(eventId)
+	event, err := h.repo.GetById(eventId)
 
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not fetch event."})
 		return
 	}
 
-	err = repository.RegisterUserForEvent(*event, userId)
+	err = h.repo.RegisterUserForEvent(*event, userId)
 
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "Something went wrong"})
@@ -28,17 +36,17 @@ func RegisterUserForEvent(context *gin.Context) {
 	context.JSON(http.StatusCreated, gin.H{"message": "You are registered for the event."})
 }
 
-func GetRegistrationsForEvent(context *gin.Context) {
+func (h *RegistrationHandler) GetRegistrationsForEvent(context *gin.Context) {
 	eventId := context.Param("id")
 
-	event, err := repository.GetEventById(eventId)
+	event, err := h.repo.GetById(eventId)
 
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not fetch event."})
 		return
 	}
 
-	userIds, err := repository.GetRegistrationsForEvent(*event)
+	userIds, err := h.repo.GetRegistrationsForEvent(*event)
 
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not fetch registrations."})
@@ -48,18 +56,18 @@ func GetRegistrationsForEvent(context *gin.Context) {
 	context.JSON(http.StatusOK, gin.H{"registrations": userIds})
 }
 
-func CancelUserEventRegistration(context *gin.Context) {
+func (h *RegistrationHandler) CancelUserEventRegistration(context *gin.Context) {
 	eventId := context.Param("id")
 	userId := context.GetInt64("userId")
 
-	event, err := repository.GetEventById(eventId)
+	event, err := h.repo.GetById(eventId)
 
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not fetch event."})
 		return
 	}
 
-	err = repository.CancelUserRegistrationForEvent(*event, userId)
+	err = h.repo.CancelUserRegistrationForEvent(*event, userId)
 
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "Something went wrong"})
