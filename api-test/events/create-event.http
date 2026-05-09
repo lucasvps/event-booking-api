@@ -1,6 +1,6 @@
 POST http://localhost:8080/events
 content-type: application/json
-authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Imx1Y2FzM0BsdWNhczMuY29tIiwiZXhwIjoxNzc4MTEzNTQzLCJ1c2VySWQiOjF9.10PRo0WRPfIFXSS5VQ10664EED-1lsaYtccc8pmmJNs
+authorization: 
 
 {
     "name": "Test 33 Event do Lucas 321U7329183291",
