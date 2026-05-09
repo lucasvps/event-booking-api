@@ -1,18 +1,26 @@
 package repository
 
 import (
+	"database/sql"
 	"errors"
 
-	"exammple.com/event-booking-api/db"
 	"exammple.com/event-booking-api/internal/domain"
 )
 
-func Save(event *domain.Event) error {
+type EventRepository struct {
+	db *sql.DB
+}
+
+func NewEventRepository(db *sql.DB) *EventRepository {
+	return &EventRepository{db: db}
+}
+
+func (r *EventRepository) Save(event *domain.Event) error {
 	query := `INSERT INTO events(
 		name, description, location, dateTime, user_id)
 		VALUES (?, ?, ?, ?, ?)`
 
-	stmt, err := db.DB.Prepare(query)
+	stmt, err := r.db.Prepare(query)
 
 	if err != nil {
 		return err
@@ -37,10 +45,10 @@ func Save(event *domain.Event) error {
 	return nil
 }
 
-func GetAllEvents() ([]domain.Event, error) {
+func (r *EventRepository) GetAll() ([]domain.Event, error) {
 	query := `SELECT * FROM events`
 
-	rows, err := db.DB.Query(query)
+	rows, err := r.db.Query(query)
 
 	if err != nil {
 		return nil, err
@@ -64,10 +72,10 @@ func GetAllEvents() ([]domain.Event, error) {
 	return events, nil
 }
 
-func GetEventById(id string) (*domain.Event, error) {
+func (r *EventRepository) GetById(id string) (*domain.Event, error) {
 	var event domain.Event
 
-	row := db.DB.QueryRow("SELECT * FROM events WHERE id = $1", id)
+	row := r.db.QueryRow("SELECT * FROM events WHERE id = $1", id)
 
 	err := row.Scan(&event.ID, &event.Name, &event.Description, &event.Location, &event.DateTime, &event.UserID)
 
@@ -78,20 +86,20 @@ func GetEventById(id string) (*domain.Event, error) {
 	return &event, nil
 }
 
-func DeleteEvent(id string) error {
+func (r *EventRepository) Delete(id string) error {
 	query := `DELETE FROM events WHERE id = ?`
 
-	_, err := db.DB.Exec(query, id)
+	_, err := r.db.Exec(query, id)
 
 	return err
 }
 
-func UpdateEvent(id string, data domain.Event) error {
+func (r *EventRepository) Update(id string, data domain.Event) error {
 	query := `UPDATE events SET
 	name = ?, description = ?, location = ?, dateTime = ?
 	WHERE ID = ?`
 
-	stmt, err := db.DB.Prepare(query)
+	stmt, err := r.db.Prepare(query)
 
 	if err != nil {
 		return err
@@ -104,12 +112,12 @@ func UpdateEvent(id string, data domain.Event) error {
 	return err
 }
 
-func RegisterUserForEvent(event domain.Event, userId int64) error {
+func (r *EventRepository) RegisterUserForEvent(event domain.Event, userId int64) error {
 	query := `INSERT INTO registrations(
 		user_id, event_id)
 		VALUES (?, ?)`
 
-	stmt, err := db.DB.Prepare(query)
+	stmt, err := r.db.Prepare(query)
 
 	if err != nil {
 		return err
@@ -122,10 +130,10 @@ func RegisterUserForEvent(event domain.Event, userId int64) error {
 	return err
 }
 
-func GetRegistrationsForEvent(event domain.Event) ([]int64, error) {
+func (r *EventRepository) GetRegistrationsForEvent(event domain.Event) ([]int64, error) {
 	query := `SELECT user_id FROM registrations WHERE event_id = ?`
 
-	rows, err := db.DB.Query(query, event.ID)
+	rows, err := r.db.Query(query, event.ID)
 
 	if err != nil {
 		return nil, err
@@ -146,10 +154,10 @@ func GetRegistrationsForEvent(event domain.Event) ([]int64, error) {
 	return userIds, nil
 }
 
-func CancelUserRegistrationForEvent(event domain.Event, userId int64) error {
+func (r *EventRepository) CancelUserRegistrationForEvent(event domain.Event, userId int64) error {
 	query := `DELETE FROM registrations WHERE event_id = ? AND user_id = ?`
 
-	stmt, err := db.DB.Prepare(query)
+	stmt, err := r.db.Prepare(query)
 
 	if err != nil {
 		return err

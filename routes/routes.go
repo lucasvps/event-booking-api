@@ -6,29 +6,29 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func RegisterRoutes(server *gin.Engine) {
+func RegisterRoutes(server *gin.Engine, userHandler *handler.UserHandler, eventHandler *handler.EventHandler, registrationHandler *handler.RegistrationHandler) {
 	// MIDDLEWARE GROUP
 	authenticatedRoute := server.Group("/")
 	authenticatedRoute.Use(middlewares.Authenticate)
 
 	// EVENTS ROUTES
-	server.GET("/events", handler.GetEvents)
-	server.GET("/events/:id", handler.GetEventById)
+	server.GET("/events", eventHandler.GetEvents)
+	server.GET("/events/:id", eventHandler.GetEventById)
 
-	authenticatedRoute.POST("/events", handler.CreateEvent)
-	authenticatedRoute.DELETE("/events/:id", handler.DeleteEvent)
-	authenticatedRoute.PUT("/events/:id", handler.UpdateEvent)
+	authenticatedRoute.POST("/events", eventHandler.CreateEvent)
+	authenticatedRoute.DELETE("/events/:id", eventHandler.DeleteEvent)
+	authenticatedRoute.PUT("/events/:id", eventHandler.UpdateEvent)
 
 	// REGISTRATION ROUTES
-	server.GET("/events/:id/register", handler.GetRegistrationsForEvent)
-	authenticatedRoute.POST("/events/:id/register", handler.RegisterUserForEvent)
-	authenticatedRoute.DELETE("/events/:id/register", handler.CancelUserEventRegistration)
+	server.GET("/events/:id/register", registrationHandler.GetRegistrationsForEvent)
+	authenticatedRoute.POST("/events/:id/register", registrationHandler.RegisterUserForEvent)
+	authenticatedRoute.DELETE("/events/:id/register", registrationHandler.CancelUserEventRegistration)
 
 	// USER ROUTES
-	server.POST("/signup", handler.SignupUser)
-	server.GET("/users", handler.GetUsers)
+	server.POST("/signup", userHandler.SignupUser)
+	server.GET("/users", userHandler.GetUsers)
 
 	// AUTH ROUTES
-	server.POST("/login", handler.Login)
+	server.POST("/login", userHandler.Login)
 
 }

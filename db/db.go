@@ -9,7 +9,7 @@ import (
 
 var DB *sql.DB
 
-func InitDB() {
+func InitDB() *sql.DB {
 	var err error
 	DB, err = sql.Open("sqlite3", "api.db")
 
@@ -21,6 +21,8 @@ func InitDB() {
 	DB.SetMaxIdleConns(5)
 
 	createTables()
+
+	return DB
 }
 
 func createTables() {
