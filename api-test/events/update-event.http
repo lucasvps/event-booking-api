@@ -1,0 +1,10 @@
+PUT http://localhost:8080/events/1
+content-type: application/json
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Imx1Y2FzM0BsdWNhczMuY29tIiwiZXhwIjoxNzc4MTEzNTQzLCJ1c2VySWQiOjF9.10PRo0WRPfIFXSS5VQ10664EED-1lsaYtccc8pmmJNs
+
+{
+    "name": "Evento editado AGORA 2.0",
+    "description": "Nova descrição!",
+    "location" : "Guarapuava - PR",
+    "dateTime": "2026-07-18T15:30:00.000Z"
+}
