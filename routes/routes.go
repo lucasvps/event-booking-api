@@ -11,18 +11,6 @@ func RegisterRoutes(server *gin.Engine, userHandler *handler.UserHandler, eventH
 	authenticatedRoute := server.Group("/")
 	authenticatedRoute.Use(middlewares.Authenticate)
 
-	// AUTH ROUTES
-	server.POST("/login", userHandler.Login)
-
-	// USER ROUTES
-	server.POST("/signup", userHandler.SignupUser)
-	server.GET("/users", userHandler.GetUsers)
-
-	// REGISTRATION ROUTES
-	server.GET("/events/:id/register", registrationHandler.GetRegistrationsForEvent)
-	authenticatedRoute.POST("/events/:id/register", registrationHandler.RegisterUserForEvent)
-	authenticatedRoute.DELETE("/events/:id/register", registrationHandler.CancelUserEventRegistration)
-
 	// EVENTS ROUTES
 	server.GET("/events", eventHandler.GetEvents)
 	server.GET("/events/:id", eventHandler.GetEventById)
@@ -30,4 +18,17 @@ func RegisterRoutes(server *gin.Engine, userHandler *handler.UserHandler, eventH
 	authenticatedRoute.POST("/events", eventHandler.CreateEvent)
 	authenticatedRoute.DELETE("/events/:id", eventHandler.DeleteEvent)
 	authenticatedRoute.PUT("/events/:id", eventHandler.UpdateEvent)
+
+	// REGISTRATION ROUTES
+	server.GET("/events/:id/register", registrationHandler.GetRegistrationsForEvent)
+	authenticatedRoute.POST("/events/:id/register", registrationHandler.RegisterUserForEvent)
+	authenticatedRoute.DELETE("/events/:id/register", registrationHandler.CancelUserEventRegistration)
+
+	// USER ROUTES
+	server.POST("/signup", userHandler.SignupUser)
+	server.GET("/users", userHandler.GetUsers)
+
+	// AUTH ROUTES
+	server.POST("/login", userHandler.Login)
+
 }
