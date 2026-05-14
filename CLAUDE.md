@@ -1,35 +1,22 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-
 ## Commands
-
 ```bash
-# Run the server
-go run main.go
-
-# Build the binary
+go run main.go        # server on localhost:8080
 go build -o event-booking-api
-
-# Add/tidy dependencies
 go mod tidy
 ```
-
-The server starts on `localhost:8080`. There are no tests yet.
+No tests yet.
 
 ## Architecture
+Gin + SQLite (`api.db`). Flow: `main.go` → `models/` → `db/db.go`.
 
-A minimal REST API built with [Gin](https://github.com/gin-gonic/gin) and SQLite (`api.db` in the project root).
+- `main.go` — routes + handlers (no separate handlers pkg)
+- `db/db.go` — SQLite connection, pool limits, `InitDB()` runs CREATE TABLE IF NOT EXISTS
+- `models/event.go` — `Event` struct, `Save()` (INSERT), `GetAllEvents()` (SELECT *)
+- `api-test/` — `.http` files for VS Code REST Client / IntelliJ
 
-**Request flow:** `main.go` (route handlers) → `models/` (SQL logic) → `db/db.go` (shared `*sql.DB`)
+**Stubs:** `event.ID` and `event.UserID` hardcoded to `1`; auth/users not implemented.
 
-- `main.go` — registers routes and contains handler functions directly (no separate handlers package yet)
-- `db/db.go` — opens the SQLite connection, sets pool limits, and runs `CREATE TABLE IF NOT EXISTS` on startup via `InitDB()`
-- `models/event.go` — `Event` struct with `Save()` (INSERT) and `GetAllEvents()` (SELECT \*) using prepared statements
-- `api-test/` — `.http` files for manual endpoint testing (compatible with VS Code REST Client or IntelliJ HTTP Client)
-
-**Known stubs:** `event.ID` and `event.UserID` are hardcoded to `1` in `createEvent`; authentication and user management are not yet implemented.
-
-## Module name
-
-The Go module is `exammple.com/event-booking-api` (note the double-m typo) — use this exact path for internal imports.
+## Module
+`exammple.com/event-booking-api` (double-m typo) — use exact for internal imports.
