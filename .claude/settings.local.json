@@ -31,10 +31,9 @@
       "PowerShell(Test-Path *)",
       "Bash(powershell -command \"Expand-Archive -Path 'commit-messages.skill' -DestinationPath 'C:\\\\Temp\\\\skill-extract' -Force; Get-ChildItem -Recurse 'C:\\\\Temp\\\\skill-extract'\")",
       "Bash(powershell -command \"Copy-Item 'commit-messages.skill' 'C:\\\\Temp\\\\commit-messages.zip'; Add-Type -AssemblyName System.IO.Compression.FileSystem; [System.IO.Compression.ZipFile]::ExtractToDirectory\\('C:\\\\Temp\\\\commit-messages.zip', 'C:\\\\Temp\\\\skill-extract'\\); Get-ChildItem -Recurse 'C:\\\\Temp\\\\skill-extract'\")",
-      "Skill(commit-messages)"
+      "Skill(commit-messages)",
+      "Bash(claude auth *)"
     ]
   },
-  "skillOverrides": {
-    "caveman-commit": "off"
-  }
+  "skillOverrides": {}
 }
